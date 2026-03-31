@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback — CyberLex India{% endblock %}
+
+{% block content %}
+
+<div class="feedback-page">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="/"><i class="fas fa-house"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Feedback</span>
+        </div>
+
+        <div class="feedback-layout">
+            <!-- Left Info -->
+            <div class="feedback-info">
+                <h1>Share Your <span class="gradient-text">Feedback</span></h1>
+                <p>Your suggestions and thoughts help us improve the platform and make cyber law education better for everyone.</p>
+                
+                <div class="feedback-features">
+                    <div class="fb-feature">
+                        <i class="fas fa-lightbulb"></i>
+                        <div>
+                            <h4>Suggest New Laws</h4>
+                            <p>Want coverage of more sections? Let us know.</p>
+                        </div>
+                    </div>
+                    <div class="fb-feature">
+                        <i class="fas fa-bug"></i>
+                        <div>
+                            <h4>Report Issues</h4>
+                            <p>Found an error or outdated information? Tell us.</p>
+                        </div>
+                    </div>
+                    <div class="fb-feature">
+                        <i class="fas fa-star"></i>
+                        <div>
+                            <h4>Share Your Experience</h4>
+                            <p>Tell us how the platform helped you understand cyber law.</p>
+                        </div>
+                    </div>
+                    <div class="fb-feature">
+                        <i class="fas fa-language"></i>
+                        <div>
+                            <h4>Language Improvements</h4>
+                            <p>Suggestions for better Hindi or Marathi translations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="contact-info-box">
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <small>Cybercrime Helpline</small>
+                            <strong>1930</strong>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-globe"></i>
+                        <div>
+                            <small>Report Portal</small>
+                            <strong>cybercrime.gov.in</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Form -->
+            <div class="feedback-form-card">
+                <div class="form-card-header">
+                    <i class="fas fa-comment-dots"></i>
+                    <h2>Write to Us</h2>
+                </div>
+
+                <div id="feedbackForm">
+                    <div class="form-group">
+                        <label for="nameInput">
+                            <i class="fas fa-user"></i>
+                            <span data-i18n="your_name">Your Name</span>
+                        </label>
+                        <input type="text" id="nameInput" placeholder="Enter your name" maxlength="100">
+                        <span class="form-error" id="nameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="messageInput">
+                            <i class="fas fa-message"></i>
+                            <span data-i18n="your_message">Your Message</span>
+                        </label>
+                        <textarea id="messageInput" placeholder="Share your thoughts, suggestions, or report an issue..." rows="6" maxlength="1000"></textarea>
+                        <div class="char-count"><span id="charCount">0</span>/1000</div>
+                        <span class="form-error" id="messageError"></span>
+                    </div>
+
+                    <button class="btn btn-primary btn-full" id="submitFeedback">
+                        <i class="fas fa-paper-plane"></i>
+                        <span data-i18n="submit">Submit Feedback</span>
+                    </button>
+                </div>
+
+                <!-- Success State -->
+                <div class="form-success" id="formSuccess" style="display:none;">
+                    <div class="success-animation">
+                        <div class="checkmark-circle">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <h3>Thank You!</h3>
+                    <p>Your feedback has been received. We appreciate you helping us improve CyberLex India!</p>
+                    <button class="btn btn-outline" onclick="resetFeedback()">
+                        <i class="fas fa-plus"></i> Submit Another
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Character count
+document.getElementById('messageInput').addEventListener('input', function() {
+    document.getElementById('charCount').textContent = this.value.length;
+});
+
+// Submit feedback
+document.getElementById('submitFeedback').addEventListener('click', async () => {
+    const name = document.getElementById('nameInput').value.trim();
+    const message = document.getElementById('messageInput').value.trim();
+    
+    // Clear errors
+    document.getElementById('nameError').textContent = '';
+    document.getElementById('messageError').textContent = '';
+    
+    let valid = true;
+    if (!name) {
+        document.getElementById('nameError').textContent = 'Please enter your name.';
+        valid = false;
+    }
+    if (!message) {
+        document.getElementById('messageError').textContent = 'Please enter a message.';
+        valid = false;
+    }
+    if (!valid) return;
+
+    const btn = document.getElementById('submitFeedback');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    showLoading();
+
+    try {
+        const res = await fetch('/feedback', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name, message })
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('feedbackForm').style.display = 'none';
+            document.getElementById('formSuccess').style.display = 'flex';
+        } else {
+            showToast(data.error || 'Something went wrong.', 'error');
+        }
+    } catch (e) {
+        showToast('Network error. Please try again.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Feedback';
+        hideLoading();
+    }
+});
+
+function resetFeedback() {
+    document.getElementById('nameInput').value = '';
+    document.getElementById('messageInput').value = '';
+    document.getElementById('charCount').textContent = '0';
+    document.getElementById('feedbackForm').style.display = 'block';
+    document.getElementById('formSuccess').style.display = 'none';
+}
+</script>
+{% endblock %}

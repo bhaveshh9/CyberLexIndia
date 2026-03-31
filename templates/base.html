@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cyber Law Awareness Platform{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <div class="brand-icon"><i class="fas fa-shield-halved"></i></div>
+                <span class="brand-text">CyberLex<span class="brand-accent">India</span></span>
+            </a>
+
+            <div class="nav-links" id="navLinks">
+                <a href="/" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                    <i class="fas fa-house"></i> <span data-i18n="home">Home</span>
+                </a>
+                <a href="/laws" class="nav-link {% if request.endpoint == 'laws' %}active{% endif %}">
+                    <i class="fas fa-scale-balanced"></i> <span data-i18n="laws">Laws</span>
+                </a>
+
+                <a href="/feedback" class="nav-link {% if request.endpoint == 'feedback' %}active{% endif %}">
+                    <i class="fas fa-comment-dots"></i> <span data-i18n="feedback">Feedback</span>
+                </a>
+            </div>
+
+            <div class="nav-controls">
+                <!-- Language Selector -->
+                <div class="lang-selector">
+                    <button class="lang-btn" id="langBtn">
+                        <i class="fas fa-globe"></i>
+                        <span id="currentLang">EN</span>
+                        <i class="fas fa-chevron-down fa-xs"></i>
+                    </button>
+                    <div class="lang-dropdown" id="langDropdown">
+                        <button class="lang-option active" data-lang="en">🇬🇧 English</button>
+                        <button class="lang-option" data-lang="hi">🇮🇳 हिंदी</button>
+                        <button class="lang-option" data-lang="mr">🇮🇳 मराठी</button>
+                    </div>
+                </div>
+
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+
+                <!-- Mobile Menu -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>CyberLex<span>India</span></span>
+                    </div>
+                    <p>Empowering citizens with knowledge of Indian Cyber Laws. Stay informed, stay protected.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fas fa-globe"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/laws">All Laws</a></li>
+
+                        <li><a href="/feedback">Feedback</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Key Laws</h4>
+                    <ul>
+                        <li><a href="/law/it-act-2000">IT Act 2000</a></li>
+                        <li><a href="/law/section-66">Section 66 - Hacking</a></li>
+                        <li><a href="/law/section-66c">Section 66C - Identity Theft</a></li>
+                        <li><a href="/law/section-66f">Section 66F - Cyber Terrorism</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="https://www.meity.gov.in/" target="_blank">MeitY Official</a></li>
+                        <li><a href="https://cybercrime.gov.in/" target="_blank">Cybercrime Portal</a></li>
+                        <li><a href="https://www.cert-in.org.in/" target="_blank">CERT-In</a></li>
+                        <li><a href="https://www.india.gov.in/" target="_blank">India.gov.in</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 CyberLex India — Cyber Law Awareness Platform &nbsp;|&nbsp; Built for Educational Purposes
+                    &nbsp;|&nbsp; Not Legal Advice</p>
+                <p>Helpline: <strong>1930</strong> (Cybercrime) &nbsp;|&nbsp; <a href="https://cybercrime.gov.in"
+                        target="_blank">cybercrime.gov.in</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner">
+            <div class="spinner-ring"></div>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

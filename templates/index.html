@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}CyberLex India — Cyber Law Awareness Platform{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="fas fa-shield-halved"></i>
+            India's #1 Cyber Law Resource
+        </div>
+        <h1 class="hero-title">
+            Understand Your<br>
+            <span class="gradient-text">Digital Rights</span><br>
+            Under Indian Law
+        </h1>
+        <p class="hero-subtitle">
+            Navigate the Information Technology Act 2000 with simple explanations,
+            real-life examples, audio support, and multilingual access — built for every Indian citizen.
+        </p>
+        <div class="hero-actions">
+            <a href="/laws" class="btn btn-primary">
+                <i class="fas fa-scale-balanced"></i> Explore Laws
+            </a>
+
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-num">13</span>
+                <span class="stat-label">Cyber Laws</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <span class="stat-num">3</span>
+                <span class="stat-label">Languages</span>
+            </div>
+
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="law-globe">
+            <div class="globe-ring globe-ring-1"></div>
+            <div class="globe-ring globe-ring-2"></div>
+            <div class="globe-ring globe-ring-3"></div>
+            <div class="globe-center">
+                <i class="fas fa-gavel"></i>
+            </div>
+            <div class="orbit-dot od-1"><i class="fas fa-lock"></i></div>
+            <div class="orbit-dot od-2"><i class="fas fa-eye-slash"></i></div>
+            <div class="orbit-dot od-3"><i class="fas fa-user-shield"></i></div>
+            <div class="orbit-dot od-4"><i class="fas fa-bug"></i></div>
+        </div>
+    </div>
+</section>
+
+<!-- Search Bar -->
+<section class="search-section">
+    <div class="container">
+        <div class="search-wrapper">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Search laws by name, section number, or keyword..."
+                    autocomplete="off">
+                <button class="search-clear" id="searchClear"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Pills -->
+
+
+<!-- Featured Laws Grid -->
+<section class="laws-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Featured <span class="gradient-text">Cyber Laws</span></h2>
+            <p>Click any card to explore the full details with examples and penalties</p>
+        </div>
+        <div class="laws-grid" id="lawsGrid">
+            {% for law in featured_laws %}
+            <a href="/law/{{ law.slug }}" class="law-card" data-category="{{ law.category }}">
+                <div class="card-badge">{{ law.category }}</div>
+                <div class="card-icon">
+                    {% if 'Terror' in law.title %}
+                    <i class="fas fa-skull-crossbones"></i>
+                    {% elif 'Identity' in law.title %}
+                    <i class="fas fa-id-card"></i>
+                    {% elif 'Privacy' in law.title or 'Confidentiality' in law.title %}
+                    <i class="fas fa-eye-slash"></i>
+                    {% elif 'Hacking' in law.title or 'Offences' in law.title %}
+                    <i class="fas fa-bug"></i>
+                    {% elif 'Obscene' in law.title or 'sexually' in law.title.lower() or 'pornography' in
+                    law.title.lower() %}
+                    <i class="fas fa-ban"></i>
+                    {% elif 'Fraud' in law.title or 'Cheating' in law.title %}
+                    <i class="fas fa-user-ninja"></i>
+                    {% elif 'Stolen' in law.title %}
+                    <i class="fas fa-box-open"></i>
+                    {% elif 'Tampering' in law.title %}
+                    <i class="fas fa-code"></i>
+                    {% elif 'Unauthorized' in law.title %}
+                    <i class="fas fa-lock-open"></i>
+                    {% else %}
+                    <i class="fas fa-gavel"></i>
+                    {% endif %}
+                </div>
+                <div class="card-content">
+                    <div class="card-section-tag">{{ law.section }}</div>
+                    <h3 class="card-title">{{ law.title }}</h3>
+                    <p class="card-desc">{{ law.description[:120] }}...</p>
+                </div>
+                <div class="card-footer">
+                    <span class="card-punishment-preview">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {{ law.punishment[:50] }}...
+                    </span>
+                    <span class="card-arrow"><i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="section-cta">
+            <a href="/laws" class="btn btn-primary">
+                <i class="fas fa-list"></i> View All 13 Laws
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Why <span class="gradient-text">CyberLex India</span>?</h2>
+            <p>Designed to make cyber law accessible to every citizen</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-language"></i></div>
+                <h3>Multilingual</h3>
+                <p>Read laws in English, Hindi, or Marathi. Every citizen deserves to understand their rights in their
+                    own language.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-volume-high"></i></div>
+                <h3>Audio Support</h3>
+                <p>Listen to law explanations with text-to-speech support. Ideal for accessibility and learning on the
+                    go.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-lightbulb"></i></div>
+                <h3>Real Examples</h3>
+                <p>Every law comes with real-life scenarios to help you understand exactly how and when it applies.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Banner -->
+<section class="cta-banner">
+    <div class="container">
+        <div class="cta-content">
+            <div class="cta-icon"><i class="fas fa-exclamation-circle"></i></div>
+            <div class="cta-text">
+                <h2>Victim of a Cybercrime?</h2>
+                <p>Report immediately at the National Cybercrime Reporting Portal or call the helpline.</p>
+            </div>
+            <div class="cta-actions">
+                <a href="https://cybercrime.gov.in" target="_blank" class="btn btn-primary">
+                    <i class="fas fa-external-link-alt"></i> Report Online
+                </a>
+                <div class="helpline">
+                    <i class="fas fa-phone"></i>
+                    <span>Helpline: <strong>1930</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Category filter for homepage
+    document.querySelectorAll('.pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            const cat = pill.dataset.category;
+            document.querySelectorAll('.law-card').forEach(card => {
+                if (cat === 'all' || card.dataset.category === cat) {
+                    card.style.display = '';
+                    card.style.animation = 'fadeInUp 0.4s ease forwards';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

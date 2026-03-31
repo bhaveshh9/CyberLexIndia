@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}{{ law.title }} — CyberLex India{% endblock %}
+
+{% block content %}
+
+<div class="law-detail-page">
+    <div class="container">
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="/"><i class="fas fa-house"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="/laws"><span data-i18n="laws">Laws</span></a>
+            <i class="fas fa-chevron-right"></i>
+            <span>{{ law.section }}</span>
+        </div>
+
+        <!-- Law Header -->
+        <div class="law-hero">
+            <div class="law-hero-left">
+                <div class="law-category-badge">{{ law.category }}</div>
+                <div class="law-section-display">{{ law.section }}</div>
+                <h1 class="law-main-title">{{ law.title }}</h1>
+
+                <!-- Controls Row -->
+                <div class="law-controls">
+                    <!-- Language Selector for content -->
+                    <div class="content-lang-selector">
+                        <button class="lang-content-btn active" data-lang="en">EN</button>
+                        <button class="lang-content-btn" data-lang="hi">हिं</button>
+                        <button class="lang-content-btn" data-lang="mr">म</button>
+                    </div>
+
+                    <!-- Audio Button -->
+                    <button class="btn btn-audio" id="audioBtn" data-slug="{{ law.slug }}">
+                        <i class="fas fa-volume-high"></i>
+                        <span data-i18n="listen">Listen</span>
+                        <div class="audio-waves" id="audioWaves">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                    </button>
+
+                    <!-- Share Button -->
+                    <button class="btn btn-ghost" onclick="sharelaw()">
+                        <i class="fas fa-share-nodes"></i> Share
+                    </button>
+                </div>
+
+                <!-- Audio Player -->
+                <div class="audio-player-bar" id="audioPlayerBar" style="display:none;">
+                    <i class="fas fa-wave-square"></i>
+                    <audio id="audioPlayer" controls></audio>
+                    <button class="btn-close-audio" onclick="closeAudio()"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="law-hero-right">
+                <div class="law-icon-big">
+                    {% if 'Terror' in law.title %}<i class="fas fa-skull-crossbones"></i>
+                    {% elif 'Identity' in law.title %}<i class="fas fa-id-card"></i>
+                    {% elif 'Privacy' in law.title or 'Confidentiality' in law.title %}<i class="fas fa-eye-slash"></i>
+                    {% elif 'Hacking' in law.title or 'Offences' in law.title %}<i class="fas fa-bug"></i>
+                    {% elif 'Obscene' in law.title %}<i class="fas fa-ban"></i>
+                    {% elif 'sexually' in law.title.lower() %}<i class="fas fa-ban"></i>
+                    {% elif 'pornography' in law.title.lower() %}<i class="fas fa-shield-halved"></i>
+                    {% elif 'Fraud' in law.title or 'Cheating' in law.title %}<i class="fas fa-user-ninja"></i>
+                    {% elif 'Stolen' in law.title %}<i class="fas fa-box-open"></i>
+                    {% elif 'Tampering' in law.title %}<i class="fas fa-code"></i>
+                    {% elif 'Unauthorized' in law.title %}<i class="fas fa-lock-open"></i>
+                    {% else %}<i class="fas fa-gavel"></i>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Law Content Cards -->
+        <div class="law-content-grid">
+
+            <!-- Explanation Card -->
+            <div class="content-card card-explanation">
+                <div class="content-card-header">
+                    <div class="card-header-icon"><i class="fas fa-book-open"></i></div>
+                    <h2 data-i18n="explanation">Explanation</h2>
+                    <div class="translate-indicator" id="translateIndicator" style="display:none;">
+                        <div class="dot-pulse"><span></span><span></span><span></span></div>
+                        <span>Translating...</span>
+                    </div>
+                </div>
+                <p class="content-text" id="descriptionText" data-original="{{ law.description }}">
+                    {{ law.description }}
+                </p>
+            </div>
+
+            <!-- Example Card -->
+            <div class="content-card card-example">
+                <div class="content-card-header">
+                    <div class="card-header-icon example-icon"><i class="fas fa-user-tie"></i></div>
+                    <h2 data-i18n="example">Real-life Example</h2>
+                </div>
+                <div class="example-box">
+                    <div class="example-quote-mark">"</div>
+                    <p class="content-text" id="exampleText" data-original="{{ law.example }}">
+                        {{ law.example }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Punishment Card -->
+            <div class="content-card card-punishment">
+                <div class="content-card-header">
+                    <div class="card-header-icon punishment-icon"><i class="fas fa-gavel"></i></div>
+                    <h2 data-i18n="punishment">Punishment & Penalty</h2>
+                </div>
+                <div class="punishment-display" id="punishmentText" data-original="{{ law.punishment }}">
+                    <div class="punishment-text">{{ law.punishment }}</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="law-nav-buttons">
+            <a href="/laws" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i>
+                <span data-i18n="back_to_laws">Back to All Laws</span>
+            </a>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const lawSlug = "{{ law.slug }}";
+    let currentAudioLang = 'en';
+    let isPlaying = false;
+
+    // Audio functionality
+    document.getElementById('audioBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('audioBtn');
+        const waves = document.getElementById('audioWaves');
+        const playerBar = document.getElementById('audioPlayerBar');
+        const audio = document.getElementById('audioPlayer');
+
+        btn.classList.add('loading');
+        btn.disabled = true;
+        showLoading();
+
+        try {
+            const lang = document.querySelector('.lang-content-btn.active')?.dataset.lang || 'en';
+            const response = await fetch(`/api/audio/${lawSlug}?lang=${lang}`);
+
+            if (!response.ok) throw new Error('Audio generation failed');
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            audio.src = url;
+            playerBar.style.display = 'flex';
+            audio.play();
+            waves.classList.add('playing');
+            btn.classList.add('playing');
+        } catch (e) {
+            showToast('Audio service unavailable. Please install gTTS: pip install gTTS', 'error');
+        } finally {
+            btn.classList.remove('loading');
+            btn.disabled = false;
+            hideLoading();
+        }
+    });
+
+    function closeAudio() {
+        const audio = document.getElementById('audioPlayer');
+        const playerBar = document.getElementById('audioPlayerBar');
+        const waves = document.getElementById('audioWaves');
+        const btn = document.getElementById('audioBtn');
+        audio.pause();
+        audio.src = '';
+        playerBar.style.display = 'none';
+        waves.classList.remove('playing');
+        btn.classList.remove('playing');
+    }
+
+    // Translation functionality
+    document.querySelectorAll('.lang-content-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            document.querySelectorAll('.lang-content-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const lang = btn.dataset.lang;
+
+            if (lang === 'en') {
+                // Restore original text
+                document.getElementById('descriptionText').textContent = document.getElementById('descriptionText').dataset.original;
+                document.getElementById('exampleText').textContent = document.getElementById('exampleText').dataset.original;
+                document.querySelector('#punishmentText .punishment-text').textContent = document.getElementById('punishmentText').dataset.original;
+                return;
+            }
+
+            document.getElementById('translateIndicator').style.display = 'flex';
+            showLoading();
+
+            try {
+                const texts = [
+                    document.getElementById('descriptionText').dataset.original,
+                    document.getElementById('exampleText').dataset.original,
+                    document.getElementById('punishmentText').dataset.original
+                ];
+
+                const results = await Promise.all(texts.map(text =>
+                    fetch('/api/translate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text, lang })
+                    }).then(r => r.json())
+                ));
+
+                document.getElementById('descriptionText').textContent = results[0].translated;
+                document.getElementById('exampleText').textContent = results[1].translated;
+                document.querySelector('#punishmentText .punishment-text').textContent = results[2].translated;
+
+                if (results[0].note) {
+                    showToast('Translation note: ' + results[0].note, 'info');
+                }
+            } catch (e) {
+                showToast('Translation service unavailable. Install googletrans.', 'error');
+            } finally {
+                document.getElementById('translateIndicator').style.display = 'none';
+                hideLoading();
+            }
+        });
+    });
+
+    function sharelaw() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ law.title }} — CyberLex India',
+                text: 'Learn about {{ law.section }} of the IT Act on CyberLex India',
+                url: window.location.href
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            showToast('Link copied to clipboard!', 'success');
+        }
+    }
+</script>
+{% endblock %}
